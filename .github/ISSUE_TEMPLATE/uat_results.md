@@ -1,17 +1,19 @@
 ---
 name: UAT test results
 about: Tell us which checks you tried and what happened
-title: "[UAT] "
+title: '[UAT] '
+labels: ''
+assignees: ''
 ---
 
 ## Session
 - Date and tester nickname:
 - Full Crew and game versions:
 - Map and level:
-- Actual players and host:
+- Actual players; who hosted:
 - Which players had Full Crew:
 - Other mods and versions:
-- Host settings including baseline, simulated players, repeatable loads and button mod:
+- Host settings, including baseline, simulated players, repeatable loads and button mod:
 
 ## Checks tried
 Copy this block for each check. Not sure is fine.
@@ -21,7 +23,7 @@ Copy this block for each check. Not sure is fine.
 - What we expected:
 - What actually happened:
 - Result: Worked / Problem / Could not test / Not tried
-- Evidence reference:
+- Screenshot/video/log reference:
 - Related bug issue:
 
 ## Summary
@@ -31,4 +33,4 @@ Copy this block for each check. Not sure is fine.
 - Could you finish the level normally?
 
 ## Evidence
-Attach reviewed copies of host and guest logs, configuration or screenshots. This issue is public; remove private information and never attach passwords or tokens. Save logs before relaunching.
+Attach reviewed copies of host/guest logs, configuration or screenshots. This issue is public; remove private information and never attach passwords or tokens. Save logs before relaunching.

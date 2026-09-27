@@ -1,7 +1,7 @@
 # Full Crew user acceptance test guide
 
-**Version under test:** 0.14.1  
-**Prepared:** September 24, 2026  
+**Version under test:** 0.14.3  
+**Updated:** September 27, 2026  
 **Status:** Test plan only. No in-game tests in this document have been marked as passed.
 
 Use this guide to check whether Full Crew works during actual play. Automated build and code checks are separate and do not prove multiplayer behavior. Start with the quick pass, then run the full relevant checks before a release.
@@ -10,7 +10,7 @@ Use this guide to check whether Full Crew works during actual play. Automated bu
 
 ## Before you start
 
-1. Create a separate Gale testing profile. Start with Full Crew 0.14.1 and required BepInEx components. Add other mods only when a test requests them; install their own dependencies normally.
+1. Create a separate Gale testing profile. Start with Full Crew 0.14.3 and required BepInEx components. Add other mods only when a test requests them; install their own dependencies normally.
 2. Close the game before replacing FullCrew.dll or editing BepInEx/config/local.fullcrew.cfg. Keep a copy of your usual configuration. Ensure only one FullCrew.dll is installed.
 3. Launch once to generate missing settings, then close and configure. Generate a fresh gameplay level after changing generation settings. Do not use a shop as the loot-generation test map.
 4. Record the game build, map, level, Full Crew version, all other mod versions, actual players and settings. Different generated maps have different original loot; compare each map to its own logged original count/budget, not a previous map.
@@ -51,6 +51,7 @@ A new launch can replace the log. If you copy it while the game is still running
 | Search text | What it helps you find |
 |---|---|
 | `Full Crew` | Plugin version, startup and messages attributed to the mod |
+| `[Payout trace]` | Host-only snapshots of surplus, extractor state and currency changes; automatic in 0.14.3 |
 | `[Loot values]` | Optional map adjustment summary and each item's before/after generation value |
 | `Extra loot:` | Counts of extra tiny, small, medium and large valuables |
 | `Generated layout:` | Actual extraction-point count, rather than just the requested minimum |
@@ -174,6 +175,8 @@ Bug reference and retest result:
 
 ### Quick pass
 
+For 0.14.3, prioritize UAT-20 through UAT-23 below, plus UAT-15, UAT-17 and UAT-18. Record the release asset name and whether it includes the banked-haul UI update; earlier diagnostic-only builds also used 0.14.3.
+
 Run UAT-01, UAT-03, UAT-04, UAT-09, UAT-10, UAT-11, UAT-13 and UAT-16 first. Include UAT-17 and UAT-18 before claiming multiplayer acceptance. These checks prioritize the newest logging and confirmation behavior and the reported extraction issues.
 
 ## Solo tests
@@ -183,7 +186,7 @@ Run UAT-01, UAT-03, UAT-04, UAT-09, UAT-10, UAT-11, UAT-13 and UAT-16 first. Inc
 **Setup:** Reference settings; no confirm-button mod.
 
 1. Launch through Gale, load a level and open the log.
-2. Confirm Full Crew 0.14.1 loaded once and the expected configuration exists.
+2. Confirm Full Crew 0.14.3 loaded once and the expected configuration exists.
 3. Open and close the map. Save the log.
 
 **Expected:** No Full Crew startup/patch exceptions; one active installation; configuration remains saved. No persistent extractor overlay outside the map. Other profile mods/files are not removed. Record game-build incompatibility as a failure, not a price-scaling issue.
@@ -330,9 +333,9 @@ Run UAT-01, UAT-03, UAT-04, UAT-09, UAT-10, UAT-11, UAT-13 and UAT-16 first. Inc
 
 1. Open the map with its mapped input, close it, and test the game's map-toggle mode if used.
 2. Try all six positions; body sizes 9, 18, 49, 50 and 100; both visibility modes. Enter and leave the active room.
-3. Check all four value labels and confirmation status when applicable. Finish the point and inspect the next point's data.
+3. Check Load, the numbered Load Quota, Extractor total, and confirmation status when applicable. Finish the point and inspect the next point's data.
 
-**Expected:** Panel appears only while the actual map control is open, never as a look-at-extractor HUD. Room-only mode restricts it to the active room/module; Everywhere may say No active extractor when none is selected. Labels are yellow and values white. Nominal heading size is body*1.10 below 50 and body*1.05 at 50 or above; the full panel can scale to fit the canvas. No clipping or interference with Timer Plugin. Credit/Quota shows banked credit, not unbanked pad value. If another panel overlaps, record both configurations and try another position.
+**Expected:** Panel appears only while the actual map control is open, never as a look-at-extractor HUD. Room-only mode restricts it to the active room/module; Everywhere may say No active extractor when none is selected. Labels and required total are yellow; collected total is green; other body text is white. On completion, Load says Complete and the current-load quota line disappears. Check the reduced gap below the heading and that the longer total sentence fits. Nominal heading size is body*1.10 below 50 and body*1.05 at 50 or above; the full panel can scale to fit the canvas. No clipping or interference with Timer Plugin. The map panel's Extractor total shows banked credit, not unbanked pad value. This differs from the top-right haul display, which adds banked credit and current pad value before native final clearing. If another panel overlaps, record both configurations and try another position.
 
 ### UAT-16 Fresh level reset and diagnostic limits
 
@@ -348,16 +351,16 @@ Run UAT-01, UAT-03, UAT-04, UAT-09, UAT-10, UAT-11, UAT-13 and UAT-16 first. Inc
 
 ### UAT-17 Guests without Full Crew
 
-**Setup:** Host has 0.14.1; at least one guest has no Full Crew. Set SimulatedPlayerCount=0 and baseline low enough for actual players to scale. First test without the button mod, then install button 1.2.0 on everyone for that test.
+**Setup:** Host has 0.14.3; at least one guest has no Full Crew. Set SimulatedPlayerCount=0 and baseline low enough for actual players to scale. First test without the button mod, then install button 1.2.0 on everyone for that test.
 
 1. Compare visible item prices, sizes and object presence between host and guest.
 2. Perform a partial, a final extraction, the next point and normal departure. Have the guest press the button in the button-enabled run.
 
-**Expected:** Shared loot/value changes and clearing agree; guest button press reaches the host; credit changes once and progression completes. Guest without Full Crew has no added map section or custom partial warning/animation. Host crush damage can still apply: communicate the test timing. Capture this as a known experience limitation requiring release-owner acceptance, not as a fully equivalent guest experience. No missing-custom-RPC errors or duplicate objects caused by Full Crew.
+**Expected:** Shared loot/value changes and clearing agree; guest button press reaches the host; credit changes once and progression completes. Guest without Full Crew retains the vanilla top-right haul display and has no added map section or custom partial warning/animation. This visual difference is expected, but shared money, items and progression must agree. Host crush damage can still apply: communicate the test timing. Capture this as a known experience limitation requiring release-owner acceptance, not as a fully equivalent guest experience. No missing-custom-RPC errors or duplicate objects caused by Full Crew.
 
 ### UAT-18 Guests with Full Crew
 
-**Setup:** Host and guests all use 0.14.1. RepeatableLoads=true, L>1. Test with and without button 1.2.0 installed on everyone.
+**Setup:** Host and guests all use 0.14.3. RepeatableLoads=true, L>1. Test with and without button 1.2.0 installed on everyone.
 
 1. Compare map quota, banked credit, load number and ready status on host and guests.
 2. Trigger a partial, cancel during warning, repeat normally and finish. Alternate who presses confirm.
@@ -374,6 +377,74 @@ Run UAT-01, UAT-03, UAT-04, UAT-09, UAT-10, UAT-11, UAT-13 and UAT-16 first. Inc
 3. Compare existing item prices and load allowance before/after. Generate a subsequent level with the changed group size.
 
 **Expected:** Existing level values/allowance are not recalculated merely because the group changes. The next generated level uses the new actual count. Host authority and object agreement remain intact. Mark unsupported joining or host migration Blocked/out of scope rather than claiming support. A test of one expander does not certify every expander.
+
+## 0.14.3 focused tests
+
+These are test instructions, not passing results. Payout logging is diagnostic; the reported missing-money issue is not confirmed fixed. The top-right counter shows progress, not spendable wallet money.
+
+### UAT-20 Banked value in the top-right counter
+
+**Setup:** Host runs the 0.14.3 build with the UI update. Enable RepeatableLoads. For a solo test, use BaselinePlayers=1 and SimulatedPlayerCount=3. Check the actual Load allowance log: you need at least two loads at the tested extractor. If there is only one, lower Items Per Load and generate a new level. Do not assume a quantity multiplier guarantees two loads.
+
+1. Activate an extractor and record its full quota and current load quota.
+2. Place enough loose valuables to meet the load quota, but less than the full extractor quota. Record their value before activation.
+3. With the confirmation-button mod installed, press Confirm when ready. Without it, wait for automatic activation.
+4. After the partial clear, read the Banked load log and photograph the empty pad and top-right counter.
+5. Add another valuable below the next activation threshold. Then remove it.
+
+**Expected:** After the first clear the numerator shows the banked value, rather than zero. Adding an item increases it by that item's current value; removing it returns to the banked value. The denominator remains the full extractor target. Example only: $5,961 banked plus $1,000 on the pad shows $6,961. The banked amount is not added twice. Native formatting remains intact. The map panel shows banked credit only, so its number can differ legitimately.
+
+### UAT-21 Payout evidence and surplus
+
+**Setup:** Same as UAT-20. Avoid purchases, cash cheats, or other money adjustments until the store balance is recorded. Record all other mods. Test once with only required dependencies and once with the usual profile where practical.
+
+1. Record the starting wallet balance, extractor quota and number of extraction points.
+2. Complete a partial load and record its Banked load amount.
+3. Complete the extractor with enough additional value to exceed its full quota. Record the final pad value immediately before clearing and any tax-return object or credit transferred to the next extractor.
+4. Record the wallet after completion, then again upon reaching the store before buying anything.
+5. Exit normally and COPY BepInEx/LogOutput.log before launching again. Search for [Payout trace], Banked load, and Vanilla final extraction begins. Attach the full log plus screenshots.
+6. Repeat without a partial load as a control. Also test an exact-quota finish if you can arrange it; otherwise mark that variation Not run.
+
+**Expected:** Logs include surplus BEFORE/AFTER, state transitions and Currency BEFORE/AFTER around native payout. No duplicate payout or unexplained missing credit. A currency unit represents $1,000: requestedUnits=11 means $11,000, not $11. The extractionHaul field is shown as stored and changes units during native payout, so do not sum snapshots. Final-load values plus banked values must be accounted for through payout and any carried surplus; do not count a tax-return object twice. Report any mismatch instead of assuming it is rounding or marking it passed.
+
+Logging requires no extra setting and is separate from Log Loot Values. It runs on the host. Currency writes that bypass StatSetRunCurrency may not appear, so a clean trace alone does not prove other mods made no changes.
+
+Copy this into the test report:
+
+```text
+Release asset/build (UI update included?):
+Test ID and result (Pass / Fail / Blocked / Not run):
+Other mods and versions:
+Starting wallet:
+Extractor number and full quota:
+Partial amounts (each separately):
+Final pad value:
+Tax return / credit carried forward:
+Wallet after extraction:
+Wallet at store before purchases:
+Currency BEFORE / requestedUnits / AFTER:
+Screenshots and saved host log:
+```
+
+### UAT-22 Guest display and compatibility
+
+**Setup:** Host has the latest 0.14.3 build. Run with a guest who has no Full Crew, then a guest with the same build. If using the confirmation-button mod, follow its installation requirements for every player.
+
+1. Repeat UAT-20 and complete the level. Compare items cleared, top-right display, map panel and final wallet on each computer.
+2. Have a guest place/remove items and press Confirm when applicable.
+3. Save host and affected guest logs. Note network delays rather than requiring identical frame timing.
+
+**Expected:** A modded guest's haul display converges to banked credit plus pad value after synchronization. An unmodded guest retains the vanilla display; it is not expected to match the host's progress counter. Both must still share correct clearing, final money and progression. No new unknown-RPC errors, duplicated loot, disconnects or blocked completion. Existing missing partial-warning animation for unmodded guests remains a known limitation; communicate before activating.
+
+### UAT-23 Completion, reset and disabled repeatable loads
+
+1. Finish an extractor with banked credit. Observe the counter through final clearing and opening of the next extractor. Native final clearing uses the vanilla display; it must not continue adding already-paid credit.
+2. On a map with multiple extractors, perform a partial load at the next one. Record any legitimate vanilla carried surplus separately; do not mistake it for stale credit.
+3. Generate a fresh level and check that old credit is absent.
+4. Disable RepeatableLoads, generate another level, and complete an extraction.
+5. Repeat with and without the supported confirmation-button mod.
+
+**Expected:** No stale or doubled credit between extractors or levels. RepeatableLoads off retains vanilla haul display and hides the added Active Extractor map panel. Shops retain their normal display and purchases. Supported confirmation behavior remains unchanged. These changes only affect displayed progress, not when payment occurs.
 
 ## Acceptance and issue reporting
 

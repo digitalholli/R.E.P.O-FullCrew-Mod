@@ -1,0 +1,7 @@
+*.log
+*.cfg
+*.dll
+*.exe
+*.zip
+.env
+.env.*
